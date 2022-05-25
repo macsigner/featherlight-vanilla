@@ -317,7 +317,8 @@
 
                     toggleGlobalEvents(true);
 
-                    self.instance.fadeIn(self.openSpeed);
+                    self.instance.style.setProperty('--featherlight-open-speed', self.openSpeed + 'ms');
+                    self.instance.classList.add('fade-in');
                     self.beforeContent(event);
 
                     /* Set content and show */

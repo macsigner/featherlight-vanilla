@@ -6,6 +6,10 @@
  * MIT Licensed.
 **/
 
+:root {
+    --featherlight-open-speed: 250ms;
+}
+
 html.with-featherlight {
     /* disable global scrolling when featherlights are visible */
     overflow: hidden;
@@ -33,6 +37,12 @@ html.with-featherlight {
     background: #333;
     /* IE8 "hack" for nested featherlights */
     background: rgba(0, 0, 0, 0);
+    transition: opacity;
+}
+
+.featherlight.fade-in {
+    opacity: 1;
+    transition-duration: var(--featherlight-open-speed);
 }
 
 /* support for nested featherlights. Does not work in IE8 (use JS to fix) */
