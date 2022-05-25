@@ -190,21 +190,21 @@
 
             var self = $.extend(this, config, {target: target}),
                 css = !self.resetCss ? self.namespace : self.namespace + '-reset', /* by adding -reset to the classname, we reset all the default css */
-                $background = $(self.background || [
-                    '<div class="' + css + '-loading ' + css + '">',
-                    '<div class="' + css + '-content">',
-                    '<button class="' + css + '-close-icon ' + self.namespace + '-close" aria-label="Close">',
-                    self.closeIcon,
-                    '</button>',
-                    '<div class="' + self.namespace + '-inner">' + self.loading + '</div>',
-                    '</div>',
-                    '</div>'].join('')),
+                background = document.createElement('div'),
                 closeButtonSelector = '.' + self.namespace + '-close' + (self.otherClose ? ',' + self.otherClose : '');
+            document.createElement('div').appendChild(background);
+            background.outerHTML = self.background || `<div class="${css}-loading ${css}">
+                        <div class="${css}-content">
+                            <button class="${css}-close-icon ${self.namespace}-close" aria-label="Close">${self.closeIcon}</button>
+                            <div class="${self.namespace}-inner">${self.loading}</div>
+                        </div>
+                    </div>`;
 
-            self.$instance = $background.clone().addClass(self.variant); /* clone DOM for the background, wrapper and the close button */
+            self.instance = background.cloneNode(true);
+            self.instance.classList.add(self.variant); /* clone DOM for the background, wrapper and the close button */
 
             /* close when click on background/anywhere/null or closebox */
-            self.$instance.on(self.closeTrigger + '.' + self.namespace, function (event) {
+            self.instance.addEventListener(self.closeTrigger, function (event) {
                 if (event.isDefaultPrevented()) {
                     return;
                 }
@@ -280,18 +280,18 @@
 
         /* sets the content of $instance to $content */
         setContent: function ($content) {
-            this.$instance.removeClass(this.namespace + '-loading');
+            this.instance.removeClass(this.namespace + '-loading');
 
             /* we need a special class for the iframe */
-            this.$instance.toggleClass(this.namespace + '-iframe', $content.is('iframe'));
+            this.instance.toggleClass(this.namespace + '-iframe', $content.is('iframe'));
 
             /* replace content by appending to existing one before it is removed
                this insures that featherlight-inner remain at the same relative
                position to any other items added to featherlight-content */
-            this.$instance.find('.' + this.namespace + '-inner')
+            this.instance.find('.' + this.namespace + '-inner')
                 .not($content)                /* excluded new content, important if persisted */
                 .slice(1).remove().end()      /* In the unexpected event where there are many inner elements, remove all but the first one */
-                .replaceWith($.contains(this.$instance[0], $content[0]) ? '' : $content);
+                .replaceWith($.contains(this.instance[0], $content[0]) ? '' : $content);
 
             this.$content = $content.addClass(this.namespace + '-inner');
 
@@ -302,7 +302,8 @@
             Returns a promise that is resolved after is successfully opened. */
         open: function (event) {
             var self = this;
-            self.$instance.hide().appendTo(self.root);
+            self.instance.remove();
+            document.querySelector(self.root).appendChild(self.instance);
             if ((!event || !event.isDefaultPrevented())
                 && self.beforeOpen(event) !== false) {
 
@@ -316,7 +317,7 @@
 
                     toggleGlobalEvents(true);
 
-                    self.$instance.fadeIn(self.openSpeed);
+                    self.instance.fadeIn(self.openSpeed);
                     self.beforeContent(event);
 
                     /* Set content and show */
@@ -327,14 +328,14 @@
                                 self.afterContent(event);
                             }
                         })
-                        .then(self.$instance.promise())
+                        .then(self.instance.promise())
                         /* Call afterOpen after fadeIn is done */
                         .done(function () {
                             self.afterOpen(event);
                         });
                 }
             }
-            self.$instance.detach();
+            self.instance.detach();
             return $.Deferred().reject().promise();
         },
 
@@ -352,8 +353,8 @@
                     toggleGlobalEvents(false);
                 }
 
-                self.$instance.fadeOut(self.closeSpeed, function () {
-                    self.$instance.detach();
+                self.instance.fadeOut(self.closeSpeed, function () {
+                    self.instance.detach();
                     self.afterClose(event);
                     deferred.resolve();
                 });
@@ -467,7 +468,7 @@
                         })
                         // We can't move an <iframe> and avoid reloading it,
                         // so let's put it in place ourselves right now:
-                        .appendTo(this.$instance.find('.' + this.namespace + '-content'));
+                        .appendTo(this.instance.find('.' + this.namespace + '-content'));
                     return deferred.promise();
                 },
             },
@@ -647,7 +648,7 @@
                 // See http://stackoverflow.com/questions/1599660/which-html-elements-can-receive-focus
                 this._$previouslyTabbable = $("a, input, select, textarea, iframe, button, iframe, [contentEditable=true]")
                     .not('[tabindex]')
-                    .not(this.$instance.find('button'));
+                    .not(this.instance.find('button'));
 
                 this._$previouslyWithTabIndex = $('[tabindex]').not('[tabindex="-1"]');
                 this._previousWithTabIndices = this._$previouslyWithTabIndex.map(function (_i, elem) {
@@ -685,7 +686,7 @@
 
             afterContent: function (_super, event) {
                 var r = _super(event);
-                this.$instance.find('[autofocus]:not([disabled])').focus();
+                this.instance.find('[autofocus]:not([disabled])').focus();
                 this.onResize(event);
                 return r;
             },
