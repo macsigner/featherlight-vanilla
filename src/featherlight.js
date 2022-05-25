@@ -646,20 +646,19 @@
 
                 // Disable tabbing:
                 // See http://stackoverflow.com/questions/1599660/which-html-elements-can-receive-focus
-                this._$previouslyTabbable = $("a, input, select, textarea, iframe, button, iframe, [contentEditable=true]")
-                    .not('[tabindex]')
-                    .not(this.instance.find('button'));
+                this._$previouslyTabbable = document.querySelectorAll("a, input, select, textarea, iframe, button, iframe, [contentEditable=true]");
+                this._$previouslyTabbable = [...this._$previouslyTabbable].filter(el => !(this.instance.contains(el) || el.matches('[tabindex]')));
 
-                this._$previouslyWithTabIndex = $('[tabindex]').not('[tabindex="-1"]');
-                this._previousWithTabIndices = this._$previouslyWithTabIndex.map(function (_i, elem) {
-                    return $(elem).attr('tabindex');
-                });
+                this._$previouslyWithTabIndex = [...document.querySelectorAll('[tabindex]:not([tabindex="-1"])')];
+                this._previousWithTabIndices = this._$previouslyWithTabIndex.map( item => item.tabindex );
 
-                this._$previouslyWithTabIndex.add(this._$previouslyTabbable).attr('tabindex', -1);
+                this._$previouslyWithTabIndex.push(...this._$previouslyTabbable);
+                this._$previouslyWithTabIndex.forEach(el => el.tabindex = -1);
 
                 if (document.activeElement.blur) {
                     document.activeElement.blur();
                 }
+
                 return _super(event);
             },
 
