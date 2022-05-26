@@ -279,21 +279,28 @@
         },
 
         /* sets the content of $instance to $content */
-        setContent: function ($content) {
-            this.instance.removeClass(this.namespace + '-loading');
+        setContent: function (content) {
+            this.instance.classList.remove(this.namespace + '-loading');
 
             /* we need a special class for the iframe */
-            this.instance.toggleClass(this.namespace + '-iframe', $content.is('iframe'));
+            // Todo: Check on iframe
+            $(this.instance).toggle(this.namespace + '-iframe', $(content).is('iframe'));
 
             /* replace content by appending to existing one before it is removed
                this insures that featherlight-inner remain at the same relative
                position to any other items added to featherlight-content */
-            this.instance.find('.' + this.namespace + '-inner')
-                .not($content)                /* excluded new content, important if persisted */
-                .slice(1).remove().end()      /* In the unexpected event where there are many inner elements, remove all but the first one */
-                .replaceWith($.contains(this.instance[0], $content[0]) ? '' : $content);
+            let arrayNonContent = Array.from(this.instance.querySelectorAll('.' + this.namespace + '-inner'))
+                .filter(el => !el.contains(content));
+            arrayNonContent.slice(1).forEach(el => el.remove());
+            let inner = this.instance.querySelector('.' + this.namespace + '-inner');
 
-            this.$content = $content.addClass(this.namespace + '-inner');
+            if (inner) {
+                inner.replaceWith(this.instance.contains(content) ? '' : content);
+            } else {
+                this.instance.appendChild(this.instance.contains(content) ? '' : content);
+            }
+
+            this.$content = content.classList.add(this.namespace + '-inner');
 
             return this;
         },
@@ -325,7 +332,7 @@
                     return $.when($content)
                         .always(function ($openendContent) {
                             if ($openendContent) {
-                                self.setContent($openendContent);
+                                self.setContent($openendContent[0]);
                                 self.afterContent(event);
                             }
                         })
