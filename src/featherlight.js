@@ -192,13 +192,13 @@
                 css = !self.resetCss ? self.namespace : self.namespace + '-reset', /* by adding -reset to the classname, we reset all the default css */
                 background = document.createElement('div'),
                 closeButtonSelector = '.' + self.namespace + '-close' + (self.otherClose ? ',' + self.otherClose : '');
-            document.createElement('div').appendChild(background);
-            background.outerHTML = self.background || `<div class="${css}-loading ${css}">
+            background.innerHTML = self.background || `<div class="${css}-loading ${css}">
                         <div class="${css}-content">
                             <button class="${css}-close-icon ${self.namespace}-close" aria-label="Close">${self.closeIcon}</button>
                             <div class="${self.namespace}-inner">${self.loading}</div>
                         </div>
                     </div>`;
+            background = background.firstElementChild;
 
             self.instance = background.cloneNode(true);
             self.instance.classList.add(self.variant); /* clone DOM for the background, wrapper and the close button */
@@ -337,7 +337,7 @@
                                 self.afterContent(event);
                             }
                         })
-                        .then(self.instance.promise())
+                        .then($(self.instance).promise())
                         /* Call afterOpen after fadeIn is done */
                         .done(function () {
                             self.afterOpen(event);
@@ -379,16 +379,18 @@
             // Todo: Check if possible via css only
             if (w && h) {
                 /* Reset apparent image size first so container grows */
-                this.$content.css('width', '').css('height', '');
+                this.$content.style.removeProperty('width');
+                this.$content.style.removeProperty('height');
                 /* Calculate the worst ratio so that dimensions fit */
                 /* Note: -1 to avoid rounding errors */
                 var ratio = Math.max(
-                    w / (this.$content.parent().width() - 1),
-                    h / (this.$content.parent().height() - 1));
+                    w / (this.$content.offsetWidth - 1),
+                    h / (this.$content.offsetHeight - 1));
                 /* Resize content */
                 if (ratio > 1) {
                     ratio = h / Math.floor(h / ratio); /* Round ratio down so height calc works */
-                    this.$content.css('width', '' + w / ratio + 'px').css('height', '' + h / ratio + 'px');
+                    this.$content.style.setProperty('width', '' + w / ratio + 'px');
+                    this.$content.style.setProperty('height', '' + h / ratio + 'px');
                 }
             }
         },
@@ -649,7 +651,7 @@
 
             beforeOpen: function (_super, event) {
                 // Used to disable scrolling
-                $(document.documentElement).addClass('with-featherlight');
+                document.documentElement.classList.add('with-featherlight');
 
                 // Remember focus:
                 this._previouslyActive = document.activeElement;
