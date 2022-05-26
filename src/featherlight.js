@@ -300,7 +300,8 @@
                 this.instance.appendChild(this.instance.contains(content) ? '' : content);
             }
 
-            this.$content = content.classList.add(this.namespace + '-inner');
+            content.classList.add(this.namespace + '-inner');
+            this.$content = content;
 
             return this;
         },
@@ -375,6 +376,7 @@
                 Called automatically on window resize.
                 Override if you want different behavior. */
         resize: function (w, h) {
+            // Todo: Check if possible via css only
             if (w && h) {
                 /* Reset apparent image size first so container grows */
                 this.$content.css('width', '').css('height', '');
