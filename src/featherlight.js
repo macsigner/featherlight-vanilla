@@ -684,14 +684,13 @@
                 var r = _super(event);
                 // Restore focus
                 var self = this;
-                this._$previouslyTabbable.removeAttr('tabindex');
-                this._$previouslyWithTabIndex.each(function (i, elem) {
-                    $(elem).attr('tabindex', self._previousWithTabIndices[i]);
-                });
+                this._$previouslyTabbable.forEach(el => el.removeAttribute('tabindex'));
+                this._$previouslyWithTabIndex.forEach((elem, i) => elem.tabindex = self._previousWithTabIndices[i]);
+
                 this._previouslyActive.focus();
                 // Restore scroll
                 if (Featherlight.opened().length === 0) {
-                    $(document.documentElement).removeClass('with-featherlight');
+                    document.documentElement.classList.remove('with-featherlight');
                 }
                 return r;
             },
