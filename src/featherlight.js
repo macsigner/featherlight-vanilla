@@ -205,13 +205,13 @@
 
             /* close when click on background/anywhere/null or closebox */
             self.instance.addEventListener(self.closeTrigger, function (event) {
-                if (event.isDefaultPrevented()) {
+                if (event.defaultPrevented) {
                     return;
                 }
-                var $target = $(event.target);
-                if (('background' === self.closeOnClick && $target.is('.' + self.namespace))
+
+                if (('background' === self.closeOnClick && event.target.matches('.' + self.namespace))
                     || 'anywhere' === self.closeOnClick
-                    || $target.closest(closeButtonSelector).length) {
+                    || event.target.closest(closeButtonSelector)) {
                     self.close(event);
                     event.preventDefault();
                 }
