@@ -8,6 +8,7 @@
 
 :root {
     --featherlight-open-speed: 250ms;
+    --featherlight-close-speed: 250ms;
 }
 
 html.with-featherlight {
@@ -43,6 +44,11 @@ html.with-featherlight {
 .featherlight.fade-in {
     opacity: 1;
     transition-duration: var(--featherlight-open-speed);
+}
+
+.featherlight.fade-out {
+    opacity: 0;
+    transition-duration: var(--featherlight-close-speed);
 }
 
 /* support for nested featherlights. Does not work in IE8 (use JS to fix) */

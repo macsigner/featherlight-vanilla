@@ -82,7 +82,6 @@
     var opened = [],
         pruneOpened = function (remove) {
             opened = $.grep(opened, function (fl) {
-                console.log(fl);
                 return fl !== remove && fl.$instance.closest('body').length > 0;
             });
             return opened;
@@ -351,23 +350,30 @@
         /* closes the lightbox. "this" contains $instance with the lightbox, and with the config
             returns a promise, resolved after the lightbox is successfully closed. */
         close: function (event) {
-            var self = this,
+            // Todo remove deferred
+            let self = this,
                 deferred = $.Deferred();
 
             if (self.beforeClose(event) === false) {
                 deferred.reject();
             } else {
-
                 if (0 === pruneOpened(self).length) {
                     toggleGlobalEvents(false);
                 }
 
-                self.instance.fadeOut(self.closeSpeed, function () {
-                    self.instance.detach();
+                let animationEndFunction = () => {
+                    self.instance.remove();
                     self.afterClose(event);
                     deferred.resolve();
-                });
+                };
+
+                self.instance.style.setProperty('--featherlight-close-speed', self.closeSpeed + 'ms');
+                self.instance.addEventListener('animationend', animationEndFunction);
+                self.instance.addEventListener('transitionend', animationEndFunction);
+
+                self.instance.classList.add('fade-out');
             }
+
             return deferred.promise();
         },
 
