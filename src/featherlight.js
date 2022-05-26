@@ -693,8 +693,14 @@
 
             afterContent: function (_super, event) {
                 var r = _super(event);
-                this.instance.find('[autofocus]:not([disabled])').focus();
+
+                let focus = this.instance.querySelector('[autofocus]:not([disabled])');
+                if (focus) {
+                    focus.focus();
+                }
+
                 this.onResize(event);
+
                 return r;
             },
         },
