@@ -81,9 +81,7 @@
 
     var opened = [],
         pruneOpened = function (remove) {
-            opened = $.grep(opened, function (fl) {
-                return fl !== remove && fl.$instance.closest('body').length > 0;
-            });
+            opened = opened.filter((fl) => fl !== remove && fl.instance.closest('body').length > 0);
             return opened;
         };
 
@@ -125,8 +123,8 @@
     var eventMap = {keyup: 'onKeyUp', resize: 'onResize'};
 
     var globalEventHandler = function (event) {
-        $.each(Featherlight.opened().reverse(), function () {
-            if (!event.isDefaultPrevented()) {
+        Featherlight.opened().reverse().forEach(function () {
+            if (!event.defaultPrevented) {
                 if (false === this[eventMap[event.type]](event)) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -594,11 +592,9 @@
         },
 
         opened: function () {
-            var klass = this;
+            let klass = this;
             pruneOpened();
-            return $.grep(opened, function (fl) {
-                return fl instanceof klass;
-            });
+            return opened.filter((fl) => fl instanceof klass);
         },
 
         close: function (event) {
